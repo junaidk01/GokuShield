@@ -1,0 +1,19 @@
+# Enterprise Module Additional Dependencies
+# Add these to your main requirements.txt if not already present
+
+# For WhatsApp Business API (optional)
+requests>=2.31.0
+
+# For Twilio SMS (optional)
+twilio>=8.10.0
+
+# For testing enterprise features
+pytest>=7.4.3
+pytest-cov>=4.1.0
+
+# Note: All other dependencies are already in main requirements.txt
+# - Flask
+# - SQLAlchemy
+# - Redis
+# - Celery
+# - etc.

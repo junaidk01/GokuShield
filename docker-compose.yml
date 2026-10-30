@@ -1,0 +1,121 @@
+version: "3.9"
+
+x-backend-env: &backend-env
+  env_file:
+    - ./backend/.env
+  environment:
+    DATABASE_URL: postgresql://${DB_USER:-gokushield}:${DB_PASSWORD:-securepass}@db:5432/${DB_NAME:-gokushield}
+    REDIS_URL: redis://redis:6379/0
+    CELERY_BROKER_URL: redis://redis:6379/0
+    CELERY_RESULT_BACKEND: redis://redis:6379/0
+    OLLAMA_BASE_URL: http://ollama:11434
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-gokushield}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-securepass}
+      POSTGRES_DB: ${DB_NAME:-gokushield}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-gokushield}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    # First run: `docker compose exec ollama ollama pull mistral:7b`
+    # (and llama2:latest if you keep both models referenced in the services)
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    <<: *backend-env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-gokushield}:${DB_PASSWORD:-securepass}@db:5432/${DB_NAME:-gokushield}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
+      RUN_MIGRATIONS: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/logs:/app/logs
+
+  celery-worker:
+    build: ./backend
+    restart: unless-stopped
+    <<: *backend-env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-gokushield}:${DB_PASSWORD:-securepass}@db:5432/${DB_NAME:-gokushield}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
+    command: ["celery", "-A", "app.create_celery_app", "worker", "--loglevel=info", "--concurrency=4"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery-beat:
+    build: ./backend
+    restart: unless-stopped
+    <<: *backend-env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-gokushield}:${DB_PASSWORD:-securepass}@db:5432/${DB_NAME:-gokushield}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
+    command: ["celery", "-A", "app.create_celery_app", "beat", "--loglevel=info"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  telegram-bot:
+    build: ./telegram-bot
+    restart: unless-stopped
+    env_file:
+      - ./telegram-bot/.env
+    environment:
+      GOKUSHIELD_API_URL: http://backend:5000
+    depends_on:
+      - backend
+    # Optional: comment out this service entirely if you don't want the
+    # Telegram bot running. It only talks to the backend over HTTP, same
+    # as any other client — it has no elevated access of its own.
+
+volumes:
+  db_data:
+  redis_data:
+  ollama_data:

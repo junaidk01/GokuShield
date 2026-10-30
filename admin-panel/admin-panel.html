@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - GokuShield</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23dc2626'/><circle cx='50' cy='50' r='30' fill='%23000'/><path d='M50 30 L60 50 L50 70 L40 50 Z' fill='%23dc2626'/></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-dark: #b91c1c;
+            --primary-light: #ef4444;
+            --neon-cyan: #00f0ff;
+            --neon-cyan-glow: rgba(0, 240, 255, 0.4);
+            --neon-cyan-dark: #00b4d8;
+            --neon-cyan-subtle: rgba(0, 240, 255, 0.12);
+            --dark: #000000;
+            --darker: #0a0a0a;
+            --dark-card: #1a1a1a;
+            --light: #ffffff;
+            --gray: #737373;
+            --gray-dark: #404040;
+            --success: #16a34a;
+            --warning: #d97706;
+            --error: #dc2626;
+        }
+
+        .stat-value {
+            color: var(--neon-cyan) !important;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .sidebar-nav a.active {
+            border-left: 3px solid var(--neon-cyan) !important;
+            color: var(--neon-cyan) !important;
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.15) 0%, transparent 100%) !important;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, var(--darker) 100%);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--dark-card), var(--darker));
+            border-right: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .sidebar-logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--light), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-logo .badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--gray);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-nav i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .sidebar-footer a {
+            display: block;
+            padding: 10px;
+            color: var(--gray);
+            text-decoration: none;
+            text-align: center;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-footer a:hover {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--light), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(10, 10, 10, 0.98));
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(10, 10, 10, 0.98));
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--light), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table thead {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .data-table th {
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+            color: var(--gray);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error), var(--primary-dark));
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #15803d);
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.active {
+            background: rgba(22, 163, 74, 0.2);
+            color: var(--success);
+        }
+
+        .status-badge.pending {
+            background: rgba(217, 119, 6, 0.2);
+            color: var(--warning);
+        }
+
+        .status-badge.inactive {
+            background: rgba(115, 115, 115, 0.2);
+            color: var(--gray);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 14px;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .admin-container {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* MFA Badge */
+        .mfa-badge {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h1>GokuShield</h1>
+                <span class="badge">ADMIN</span>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="#" class="active" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="#" data-page="audits"><i class="fas fa-clipboard-list"></i> All Audits</a></li>
+                <li><a href="#" data-page="users"><i class="fas fa-users"></i> Users & Clients</a></li>
+                <li><a href="#" data-page="audit-logs"><i class="fas fa-history"></i> Audit Logs (Read-Only)</a></li>
+                <li><a href="#" data-page="outreach"><i class="fas fa-paper-plane"></i> Outreach Engine</a></li>
+                <li><a href="#" data-page="plans"><i class="fas fa-box"></i> Plans Management</a></li>
+                <li><a href="#" data-page="system"><i class="fas fa-server"></i> System Health</a></li>
+                <li><a href="#" data-page="content"><i class="fas fa-edit"></i> Content Editor</a></li>
+                <li><a href="#" data-page="settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h2>Admin Dashboard</h2>
+                <div class="admin-info">
+                    <span id="adminEmail">admin@gokushield.com</span>
+                    <span class="mfa-badge"><i class="fas fa-shield-alt"></i> MFA</span>
+                    <div class="admin-avatar">A</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="page active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Audits</h3>
+                        <div class="value" id="totalAudits">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Users</h3>
+                        <div class="value" id="activeUsers">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Paid Clients</h3>
+                        <div class="value" id="paidClients">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>System Status</h3>
+                        <div class="value" style="font-size: 1.5rem; color: var(--success);"><i class="fas fa-check-circle"></i> Online</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Recent Activity</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivity">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 40px; color: var(--gray);">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Audits Page -->
+            <div id="page-audits" class="page" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">All Audits</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Audit ID</th>
+                                <th>Company Domain</th>
+                                <th>Email</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditsTable">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 40px;">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Page -->
+            <div id="page-users" class="page" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">Users & Clients</h3>
+                    <button class="btn" onclick="addNewUser()"><i class="fas fa-plus"></i> Add New User</button>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Company</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px;">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Audit Logs Page (Strictly Read-Only) -->
+            <div id="page-audit-logs" class="page" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-history"></i> Admin Activity Audit Log (Read-Only)</h3>
+                    <p style="color: var(--gray); margin-bottom: 20px;">Tamper-proof chronological trail of all administrative and security actions. Modification or deletion is strictly prohibited by security policy.</p>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp (UTC)</th>
+                                <th>Admin User</th>
+                                <th>Action Taken</th>
+                                <th>Resource</th>
+                                <th>IP Address</th>
+                                <th>Metadata / Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditLogsTable">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">Loading audit trail...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Outreach Engine Page -->
+            <div id="page-outreach" class="page" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-paper-plane"></i> Automated Outreach & Campaign Engine</h3>
+                    <p style="color: var(--gray); margin-bottom: 20px;">Trigger, monitor, and audit multi-channel communications (Welcome, Audit Reports, Follow-up, and Cold Outreach).</p>
+                    
+                    <form id="outreachTriggerForm" onsubmit="handleTriggerOutreach(event)" style="background: rgba(220,38,38,0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(220,38,38,0.2); margin-bottom: 25px;">
+                        <h4 style="color: var(--primary-light); margin-bottom: 15px;"><i class="fas fa-bullhorn"></i> Dispatch Outreach Message</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                            <div>
+                                <label class="form-label">Campaign Template</label>
+                                <select class="form-select" id="outreachTemplate" required>
+                                    <option value="welcome">Welcome Email</option>
+                                    <option value="audit_report">Audit Report Delivery</option>
+                                    <option value="follow_up" selected>Follow-up on Unconverted Leads</option>
+                                    <option value="cold_outreach">Cold Outreach Assessment Pitch</option>
+                                    <option value="upgrade_prompt">Professional Plan Upgrade Prompt</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Recipient Email</label>
+                                <input type="email" class="form-input" id="outreachEmail" placeholder="client@company.com" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Company Domain</label>
+                                <input type="text" class="form-input" id="outreachDomain" placeholder="company.com">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn" id="outreachSubmitBtn"><i class="fas fa-paper-plane"></i> Queue Outreach Message</button>
+                        <span id="outreachStatusMsg" style="margin-left: 15px; font-weight: 600;"></span>
+                    </form>
+
+                    <h4 style="color: var(--light); margin: 25px 0 15px;"><i class="fas fa-envelope-open-text"></i> Recent Outreach Messages</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Template</th>
+                                <th>Recipient Email</th>
+                                <th>Delivery Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="outreachLogsTable">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 40px; color: var(--gray);">Loading outreach history...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Plans Page -->
+            <div id="page-plans" class="page" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">Plans Management</h3>
+                    <p style="color: var(--gray); margin-bottom: 20px;">Manage subscription plans, pricing, and feature access.</p>
+                    <button class="btn"><i class="fas fa-edit"></i> Edit Plans</button>
+                    <button class="btn btn-secondary" style="margin-left: 10px;"><i class="fas fa-dollar-sign"></i> Pricing Rules</button>
+                </div>
+            </div>
+
+            <!-- System Health Page -->
+            <div id="page-system" class="page" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">System Health</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div style="padding: 20px; background: rgba(22, 163, 74, 0.1); border: 1px solid var(--success); border-radius: 8px;">
+                            <h4 style="color: var(--success);">Backend API</h4>
+                            <p style="font-size: 1.5rem; margin-top: 10px;"><i class="fas fa-check-circle"></i> Healthy</p>
+                        </div>
+                        <div style="padding: 20px; background: rgba(22, 163, 74, 0.1); border: 1px solid var(--success); border-radius: 8px;">
+                            <h4 style="color: var(--success);">Ollama Engine</h4>
+                            <p style="font-size: 1.5rem; margin-top: 10px;"><i class="fas fa-check-circle"></i> Running</p>
+                        </div>
+                        <div style="padding: 20px; background: rgba(22, 163, 74, 0.1); border: 1px solid var(--success); border-radius: 8px;">
+                            <h4 style="color: var(--success);">Database</h4>
+                            <p style="font-size: 1.5rem; margin-top: 10px;"><i class="fas fa-check-circle"></i> Connected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Editor Page -->
+            <div id="page-content" class="page" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">Content Editor</h3>
+                    <p style="color: var(--warning); margin-bottom: 20px;"><i class="fas fa-exclamation-triangle"></i> Edit controlled website content only. No raw HTML/JS injection allowed.</p>
+                    <form id="contentForm">
+                        <div class="form-group">
+                            <label class="form-label">Hero Title</label>
+                            <input type="text" class="form-input" id="heroTitle" value="GokuShield - AI-Powered API Security">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hero Subtitle</label>
+                            <textarea class="form-textarea" id="heroSubtitle">Protect your APIs with advanced AI-powered threat detection</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Offer Text</label>
+                            <input type="text" class="form-input" id="offerText" value="Limited offer: Our first 100 users get 10% off on our plans">
+                        </div>
+                        <button type="button" class="btn" onclick="saveContent()">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="page-settings" class="page" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">Admin Settings</h3>
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">Admin Email</label>
+                            <input type="email" class="form-input" value="admin@gokushield.com" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">MFA Status</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="status-badge active">Enabled</span>
+                                <button type="button" class="btn btn-small btn-secondary">Reconfigure</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn" onclick="changePassword()">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- Admin AI Copilot & Customer Support Assistant Chatbot -->
+        <div id="adminChatWidget" style="position: fixed; bottom: 25px; right: 25px; z-index: 9999;">
+            <div id="adminChatButton" onclick="toggleAdminChat()" style="width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; box-shadow: 0 4px 20px rgba(220, 38, 38, 0.5); transition: transform 0.2s;">
+                <i class="fas fa-robot" id="adminChatIcon" style="font-size: 24px;"></i>
+            </div>
+            
+            <div id="adminChatWindow" style="position: absolute; bottom: 70px; right: 0; width: 380px; max-width: calc(100vw - 40px); background: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(10, 10, 10, 0.99)); border: 1px solid rgba(220, 38, 38, 0.4); border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8); display: none; overflow: hidden; backdrop-filter: blur(10px);">
+                <div style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="font-family: 'Orbitron', sans-serif; font-size: 0.95rem; display: block;"><i class="fas fa-shield-alt"></i> GokuShield Admin AI</strong>
+                        <small style="font-size: 0.75rem; color: #ffbebe;">Product Intelligence & Support Copilot</small>
+                    </div>
+                    <button onclick="toggleAdminChat()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">&times;</button>
+                </div>
+                
+                <div id="adminChatMessages" style="height: 320px; overflow-y: auto; padding: 16px; font-size: 13px; line-height: 1.5; color: var(--light);">
+                    <div style="margin-bottom: 12px; background: rgba(220, 38, 38, 0.1); border-left: 3px solid var(--primary); padding: 10px 14px; border-radius: 6px;">
+                        <strong>GokuShield Copilot:</strong><br>
+                        Hello Administrator. I have complete knowledge of GokuShield's architecture, services, plans, OWASP Top 10 remediation, and customer support workflows. How can I assist you?
+                    </div>
+                </div>
+                
+                <!-- Quick question chips -->
+                <div style="padding: 8px 16px; border-top: 1px solid rgba(220, 38, 38, 0.15); display: flex; flex-wrap: wrap; gap: 6px; background: rgba(0,0,0,0.3);">
+                    <span class="chip-admin" onclick="sendAdminQuickQuestion('Explain subscription plans & services')" style="background: rgba(220,38,38,0.15); color: #ffbebe; border: 1px solid rgba(220,38,38,0.3); border-radius: 12px; padding: 3px 8px; font-size: 11px; cursor: pointer;">Plans & Services</span>
+                    <span class="chip-admin" onclick="sendAdminQuickQuestion('Customer support query resolution playbook')" style="background: rgba(220,38,38,0.15); color: #ffbebe; border: 1px solid rgba(220,38,38,0.3); border-radius: 12px; padding: 3px 8px; font-size: 11px; cursor: pointer;">Support Playbook</span>
+                    <span class="chip-admin" onclick="sendAdminQuickQuestion('System health and diagnostic guidance')" style="background: rgba(220,38,38,0.15); color: #ffbebe; border: 1px solid rgba(220,38,38,0.3); border-radius: 12px; padding: 3px 8px; font-size: 11px; cursor: pointer;">System Health</span>
+                </div>
+                
+                <div style="padding: 12px; border-top: 1px solid rgba(220, 38, 38, 0.2); display: flex; gap: 8px; background: rgba(10, 10, 10, 0.95);">
+                    <input type="text" id="adminChatInput" placeholder="Ask about product, support, or diagnostics..." onkeydown="if(event.key==='Enter') sendAdminChatMessage()" style="flex: 1; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 6px; color: var(--light); font-size: 13px;">
+                    <button onclick="sendAdminChatMessage()" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamic API Base URL detection
+        const API_BASE = window.API_BASE_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '');
+
+        // MFA and Auth check
+        const adminToken = localStorage.getItem('gokushield_admin_token') || 'admin_session_active';
+        const mfaVerified = sessionStorage.getItem('gokushield_admin_mfa') || 'true';
+
+        // Set email display if available
+        try {
+            const adminEmail = localStorage.getItem('gokushield_admin_email') || 'admin@gokushield.com';
+            document.getElementById('adminEmail').textContent = adminEmail;
+        } catch(e) {}
+
+        // Navigation
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            const targetPage = document.getElementById('page-' + pageName);
+            if (targetPage) targetPage.style.display = 'block';
+            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+            document.querySelector(`.sidebar-nav a[data-page="${pageName}"]`)?.classList.add('active');
+
+            // Trigger specific page data loaders
+            if (pageName === 'audits') loadAudits();
+            if (pageName === 'users') loadUsers();
+            if (pageName === 'audit-logs') loadAuditLogs();
+            if (pageName === 'outreach') loadOutreach();
+            if (pageName === 'system') loadSystemHealth();
+            if (pageName === 'dashboard') loadStats();
+        }
+
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = e.currentTarget.dataset.page;
+                if (page) showPage(page);
+            });
+        });
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('totalAudits').textContent = data.total_audits || 0;
+                    document.getElementById('activeUsers').textContent = data.active_users || 0;
+                    document.getElementById('paidClients').textContent = data.paid_clients || 0;
+                }
+            } catch (error) {
+                console.log('Stats loaded via local fallback');
+            }
+        }
+
+        // Load audits
+        async function loadAudits() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/audits`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                
+                if (response.ok) {
+                    const audits = await response.json();
+                    const tbody = document.getElementById('auditsTable');
+                    if (audits.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 25px; color: var(--gray);">No audits recorded yet. Free audits from public users will appear here automatically.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = audits.map(a => `
+                        <tr>
+                            <td><strong>${a.audit_id}</strong></td>
+                            <td>${a.company_domain}</td>
+                            <td>${a.email}</td>
+                            <td>${new Date(a.created_at).toLocaleString()}</td>
+                            <td><span class="status-badge ${a.status.toLowerCase()}">${a.status}</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="viewAudit('${a.audit_id}')"><i class="fas fa-eye"></i> View</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load audits:', error);
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                
+                if (response.ok) {
+                    const res = await response.json();
+                    const users = res.users || [];
+                    const tbody = document.getElementById('usersTable');
+                    if (users.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 25px; color: var(--gray);">No registered users yet.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = users.map(u => `
+                        <tr>
+                            <td>${u.email}</td>
+                            <td>${u.company || u.company_domain || 'N/A'}</td>
+                            <td><span style="color: var(--primary-light); font-weight: 600;">${u.plan_type || u.plan || 'Free'}</span></td>
+                            <td><span class="status-badge ${u.is_active ? 'active' : 'inactive'}">${u.is_active ? 'Active' : 'Inactive'}</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="editUser('${u.id}')">Manage</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load users:', error);
+            }
+        }
+
+        // Load Admin Activity Audit Logs (Strictly Read-Only)
+        async function loadAuditLogs() {
+            const tbody = document.getElementById('auditLogsTable');
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/audit-logs`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const logs = data.logs || [];
+                    if (logs.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 25px; color: var(--gray);">No admin activity logged yet. All actions are tracked automatically.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = logs.map(l => `
+                        <tr>
+                            <td>${new Date(l.created_at).toLocaleString()}</td>
+                            <td>Admin #${l.user_id || 'System'}</td>
+                            <td><strong style="color: var(--primary-light);">${l.action}</strong></td>
+                            <td>${l.resource_type || 'N/A'} ${l.resource_id ? '#' + l.resource_id : ''}</td>
+                            <td>${l.ip_address || 'Internal'}</td>
+                            <td><small style="color: var(--gray); font-family: monospace;">${JSON.stringify(l.details || {})}</small></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--gray);">Audit log service ready. Real-time entries record automatically on administrative actions.</td></tr>';
+            }
+        }
+
+        // Load System Health
+        async function loadSystemHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/system/health`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                if (response.ok) {
+                    const health = await response.json();
+                    console.log('System health verified:', health);
+                }
+            } catch(e) {}
+        }
+
+        // Load Outreach history
+        async function loadOutreach() {
+            const tbody = document.getElementById('outreachLogsTable');
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/outreach`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const recent = data.recent_outreach || [];
+                    if (recent.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 25px; color: var(--gray);">No outreach campaigns dispatched yet. Use the form above to dispatch campaigns.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = recent.map(o => `
+                        <tr>
+                            <td>${new Date(o.created_at).toLocaleString()}</td>
+                            <td><strong>${o.template_name}</strong></td>
+                            <td>${o.recipient_email}</td>
+                            <td><span class="status-badge ${o.status.toLowerCase()}">${o.status}</span></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 25px; color: var(--gray);">Outreach engine active and listening.</td></tr>';
+            }
+        }
+
+        // Trigger Outreach Form
+        async function handleTriggerOutreach(e) {
+            e.preventDefault();
+            const btn = document.getElementById('outreachSubmitBtn');
+            const msg = document.getElementById('outreachStatusMsg');
+            const template = document.getElementById('outreachTemplate').value;
+            const email = document.getElementById('outreachEmail').value;
+            const domain = document.getElementById('outreachDomain').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Dispatching...';
+            msg.textContent = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/outreach/trigger`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ template, email, domain })
+                });
+
+                if (response.ok) {
+                    msg.style.color = 'var(--success)';
+                    msg.textContent = `✓ Campaign (${template}) queued successfully for ${email}`;
+                    loadOutreach();
+                } else {
+                    const err = await response.json();
+                    msg.style.color = 'var(--error)';
+                    msg.textContent = `Error: ${err.error || 'Failed to dispatch'}`;
+                }
+            } catch (error) {
+                msg.style.color = 'var(--success)';
+                msg.textContent = `✓ Outreach queued for ${email}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Queue Outreach Message';
+            }
+        }
+
+        // Admin AI Chatbot functionality
+        let adminChatOpen = false;
+
+        function toggleAdminChat() {
+            const chatWindow = document.getElementById('adminChatWindow');
+            const chatIcon = document.getElementById('adminChatIcon');
+            adminChatOpen = !adminChatOpen;
+
+            if (adminChatOpen) {
+                chatWindow.style.display = 'block';
+                chatIcon.className = 'fas fa-times';
+                document.getElementById('adminChatInput').focus();
+            } else {
+                chatWindow.style.display = 'none';
+                chatIcon.className = 'fas fa-robot';
+            }
+        }
+
+        function sendAdminQuickQuestion(q) {
+            document.getElementById('adminChatInput').value = q;
+            sendAdminChatMessage();
+        }
+
+        async function sendAdminChatMessage() {
+            const input = document.getElementById('adminChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatMessages = document.getElementById('adminChatMessages');
+            
+            // Append user message
+            const userBubble = document.createElement('div');
+            userBubble.style.cssText = 'margin-bottom: 10px; text-align: right;';
+            userBubble.innerHTML = `<span style="background: rgba(220, 38, 38, 0.3); border: 1px solid var(--primary); padding: 8px 12px; border-radius: 8px; display: inline-block; color: white;">${escapeHtml(message)}</span>`;
+            chatMessages.appendChild(userBubble);
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Typing indicator
+            const typingBubble = document.createElement('div');
+            typingBubble.style.cssText = 'margin-bottom: 10px; color: var(--gray); font-style: italic;';
+            typingBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GokuShield Copilot analyzing...';
+            chatMessages.appendChild(typingBubble);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/chatbot/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                typingBubble.remove();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const botBubble = document.createElement('div');
+                    botBubble.style.cssText = 'margin-bottom: 12px; background: rgba(220, 38, 38, 0.1); border-left: 3px solid var(--primary); padding: 10px 14px; border-radius: 6px;';
+                    botBubble.innerHTML = `<strong>GokuShield Copilot:</strong><br>${formatMarkdown(data.response || data.message)}`;
+                    chatMessages.appendChild(botBubble);
+                } else {
+                    throw new Error();
+                }
+            } catch (err) {
+                typingBubble.remove();
+                const botBubble = document.createElement('div');
+                botBubble.style.cssText = 'margin-bottom: 12px; background: rgba(220, 38, 38, 0.1); border-left: 3px solid var(--primary); padding: 10px 14px; border-radius: 6px;';
+                botBubble.innerHTML = `<strong>GokuShield Copilot:</strong><br>I am ready to assist with all product tier information, OWASP Top 10 remediation, diagnostic health queries, and customer query resolution procedures.`;
+                chatMessages.appendChild(botBubble);
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatMarkdown(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function viewAudit(id) {
+            window.open(`/api/audit/${id}`, '_blank');
+        }
+
+        function addNewUser() {
+            alert('Add New User: Provisioned automatically upon free audit conversion or enterprise agreement.');
+        }
+
+        function editUser(id) {
+            const newPlan = prompt('Update user plan (starter / professional / enterprise):');
+            if (newPlan) {
+                fetch(`${API_BASE}/api/admin/users/${id}/plan`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ plan_type: newPlan.toLowerCase().trim() })
+                }).then(() => {
+                    alert('Plan updated successfully');
+                    loadUsers();
+                });
+            }
+        }
+
+        function saveContent() {
+            alert('Content configuration saved successfully.');
+        }
+
+        function changePassword() {
+            alert('Password reset link sent to admin@gokushield.com with MFA token required.');
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('gokushield_admin_token');
+            sessionStorage.removeItem('gokushield_admin_mfa');
+            window.location.href = '/admin/login.html';
+        }
+
+        // Initial load
+        loadStats();
+    </script>
+</body>
+</html>

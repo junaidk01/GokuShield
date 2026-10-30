@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Unit test / coverage reports
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments & Local Secrets
+.env.local
+venv/
+env/
+
+# Local databases & run logs
+*.sqlite
+*.sqlite3
+*.db
+backend/*.db
+backend/logs/*.log
+!backend/logs/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

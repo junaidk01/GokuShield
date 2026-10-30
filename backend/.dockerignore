@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+!.env.example
+logs/
+.git/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+venv/
+.venv/
